@@ -18,13 +18,15 @@ body {
 }
 ul {
   list-style: none;
-  padding: none;
-  margin: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 1rem;
 }
 span.resultado {
   position: relative;
   width: 100%;
 }
+
 .resultado-enter {
   transition: 0.5s;
 }

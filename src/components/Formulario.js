@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { obtenerDiffYear, calcularMarca, obtenerPlan } from "./../helper";
+import PropTypes from "prop-types";
 
+import "./../animations.css";
 /*---------------- styled components --------------------*/
 
 const Form = styled.form`
@@ -55,17 +57,19 @@ const Boton = styled.button`
 `;
 
 const Error = styled.div`
-  background-color: red;
+  background-color: #c20000;
   color: white;
   padding: 1rem;
   width: 100%;
   text-align: center;
+  border-radius: 5px;
   margin-bottom: 2rem;
+  font-weight: 900;
 `;
 
 /*---------------- component --------------------*/
 
-const Formulario = ({ setSummary }) => {
+const Formulario = ({ setSummary, setLoad }) => {
   const [datos, guardarDatos] = useState({
     marca: "",
     year: "",
@@ -89,10 +93,20 @@ const Formulario = ({ setSummary }) => {
 
     if (marca.trim() === "" || year.trim() === "" || plan.trim() === "") {
       setError(true);
+      setLoad(false);
+      setSummary({
+        cotizacion: undefined,
+      });
       return;
     }
 
+    // Reset para que vuelvan a cargar los componentes cada vez que se hace un nuevo submit
     setError(false); // Para quitar el mensaje de error en caso de previamente este ahi.
+    setLoad(true);
+    setSummary({
+      cotizacion: undefined,
+    });
+    // Reset para que vuelvan a cargar los componentes cada vez que se hace un nuevo submit
 
     // Una base de 2000
     let resultado = 2000;
@@ -114,11 +128,14 @@ const Formulario = ({ setSummary }) => {
     const incrementoPlan = obtenerPlan(plan);
     resultado = parseFloat(incrementoPlan * resultado).toFixed(2);
 
-    // Total
-    setSummary({
-      cotizacion: resultado,
-      datos,
-    });
+    setTimeout(() => {
+      // Total
+      setSummary({
+        cotizacion: Number(resultado),
+        datos,
+      });
+      setLoad(false);
+    }, 2000);
   };
 
   return (
@@ -127,7 +144,9 @@ const Formulario = ({ setSummary }) => {
       onSubmit={handleSubmit}
     >
 
-      { error ? <Error> Todos los campos son obligatorios </Error> : null }
+      {/* prettier-ignore */}
+      { error ? <Error className="fade-in" style={{display:"block"}}> Todos los campos son obligatorios </Error> : null}
+
 
       <Campo>
         <Label>Marca</Label>
@@ -137,7 +156,7 @@ const Formulario = ({ setSummary }) => {
           value={marca}
           onChange={inputsData}
         >
-          <option values="">-- Seleccione --</option>
+          <option values="" label="-- Seleccione --"></option>
           <option values="">Americano</option>
           <option values="">Europeo</option>
           <option values="">Asiatico</option>
@@ -151,7 +170,7 @@ const Formulario = ({ setSummary }) => {
            value={year}
           onChange={inputsData}
         >
-          <option value="">-- Seleccione --</option>
+          <option values="" label="-- Seleccione --"></option>
           <option value="2023">2023</option>
           <option value="2022">2022</option>
           <option value="2021">2021</option>
@@ -192,6 +211,11 @@ const Formulario = ({ setSummary }) => {
       <Boton type="submit">Cotizar</Boton>
     </Form>
   );
+};
+
+Formulario.propTypes = {
+  setSummary: PropTypes.func.isRequired,
+  setLoad: PropTypes.func.isRequired,
 };
 
 export default Formulario;
